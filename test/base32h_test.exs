@@ -6,19 +6,17 @@ defmodule Base32HTest do
     test "encoding" do
       assert Base32H.encode(0) == "0"
       assert Base32H.encode(1_099_511_627_775) == "ZZZZZZZZ"
+      assert Base32H.encode(1_099_511_627_776) == "100000000"
 
       assert_raise(FunctionClauseError, fn ->
         Base32H.encode(-1)
-      end)
-
-      assert_raise(FunctionClauseError, fn ->
-        Base32H.encode(1_099_511_627_776)
       end)
     end
 
     test "decoding" do
       assert Base32H.decode("0") == 0
       assert Base32H.decode("ZZZZZZZZ") == 1_099_511_627_775
+      assert Base32H.decode("100000000") == 1_099_511_627_776
     end
   end
 

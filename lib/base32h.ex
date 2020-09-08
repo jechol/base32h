@@ -43,18 +43,22 @@ defmodule Base32H do
               |> List.flatten()
               |> Enum.into(%{})
 
-  defguardp is_encodable(n) when is_integer(n) and n >= 0 and n <= 1_099_511_627_775
+  defguardp is_encodable(num) when is_integer(num) and num >= 0
 
-  def encode(n) when is_encodable(n) do
-    bin = <<n::40>>
-
-    chunks = for <<five_bits::size(5) <- bin>>, do: five_bits
-
-    zeros_processed = chunks |> remove_starting_zeros()
-
-    encoded = zeros_processed |> Enum.map(&Map.fetch!(@encode_map, &1))
-
-    encoded |> Enum.into('') |> to_string()
+  def encode(num) when is_encodable(num) do
+    num
+    |> Stream.unfold(fn n ->
+      if n == 0, do: nil, else: {rem(n, 32), div(n, 32)}
+    end)
+    |> Enum.to_list()
+    |> Enum.reverse()
+    |> case do
+      [] -> [0]
+      l -> l
+    end
+    |> Enum.map(&Map.fetch!(@encode_map, &1))
+    |> Enum.into('')
+    |> to_string()
   end
 
   def encode_bin(<<bin::binary>>) do
@@ -82,10 +86,6 @@ defmodule Base32H do
     pad_size = Integer.mod(5 - byte_size(bin), 5)
     <<0::pad_size*8, bin::binary>>
   end
-
-  defp remove_starting_zeros([last_digit]), do: [last_digit]
-  defp remove_starting_zeros([0 | tail]), do: remove_starting_zeros(tail)
-  defp remove_starting_zeros(non_zero_started), do: non_zero_started
 
   def decode(<<str::binary>>) do
     do_decode(str, 0)
