@@ -1,3 +1,6 @@
+![mix test](https://github.com/jechol/base32h/workflows/mix%20test/badge.svg)
+![Hex.pm](https://img.shields.io/hexpm/v/base32h)
+
 # Base32H
 
 You might already know what Base32H is, if not see https://base32h.github.io
