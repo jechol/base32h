@@ -1,42 +1,45 @@
 defmodule Base32H do
-  @digit_set %{
-    0 => ["0", "O", "o"],
-    1 => ["1", "l", "i"],
-    2 => ["2"],
-    3 => ["3"],
-    4 => ["4"],
-    5 => ["5", "S", "s"],
-    6 => ["6"],
-    7 => ["7"],
-    8 => ["8"],
-    9 => ["9"],
-    10 => ["A", "a"],
-    11 => ["B", "b"],
-    12 => ["C", "c"],
-    13 => ["D", "d"],
-    14 => ["E", "e"],
-    15 => ["F", "f"],
-    16 => ["G", "g"],
-    17 => ["H", "h"],
-    18 => ["J", "j"],
-    19 => ["K", "k"],
-    20 => ["L", "l"],
-    21 => ["M", "m"],
-    22 => ["N", "n"],
-    23 => ["P", "p"],
-    24 => ["Q", "q"],
-    25 => ["R", "r"],
-    26 => ["T", "t"],
-    27 => ["V", "v", "U", "u"],
-    28 => ["W", "w"],
-    29 => ["X", "x"],
-    30 => ["Y", "y"],
-    31 => ["Z", "z"]
-  }
-
-  @encode_map @digit_set |> Enum.map(fn {n, [s | _]} -> {n, s} end) |> Enum.into(%{})
-  @decode_map @digit_set
-              |> Enum.map(fn {n, aliases} -> aliases |> Enum.map(fn a -> {a, n} end) end)
+  @digits [
+    '0Oo',
+    '1Ii',
+    '2',
+    '3',
+    '4',
+    '5Ss',
+    '6',
+    '7',
+    '8',
+    '9',
+    'Aa',
+    'Bb',
+    'Cc',
+    'Dd',
+    'Ee',
+    'Ff',
+    'Gg',
+    'Hh',
+    'Jj',
+    'Kk',
+    'Ll',
+    'Mm',
+    'Nn',
+    'Pp',
+    'Qq',
+    'Rr',
+    'Tt',
+    'VvUu',
+    'Ww',
+    'Xx',
+    'Yy',
+    'Zz'
+  ]
+  @encode_map @digits
+              |> Enum.with_index()
+              |> Enum.map(fn {[c | _], n} -> {n, c} end)
+              |> Enum.into(%{})
+  @decode_map @digits
+              |> Enum.with_index()
+              |> Enum.map(fn {chars, n} -> chars |> Enum.map(fn c -> {c, n} end) end)
               |> List.flatten()
               |> Enum.into(%{})
 
@@ -59,7 +62,7 @@ defmodule Base32H do
 
     encoded = zeros_processed |> Enum.map(&Map.fetch!(@encode_map, &1))
 
-    encoded |> Enum.into("")
+    encoded |> Enum.into('') |> to_string()
   end
 
   def encode_bin(<<bin::binary>>) do
@@ -73,9 +76,7 @@ defmodule Base32H do
   end
 
   defp do_encode(nums) when is_list(nums) do
-    nums
-    |> Enum.map(&Map.fetch!(@encode_map, &1))
-    |> Enum.into("")
+    nums |> Enum.map(&Map.fetch!(@encode_map, &1)) |> Enum.into('') |> to_string()
   end
 
   defp expand_int(n) when is_integer(n) and n >= @min_encode and n <= @max_encode do
@@ -102,7 +103,7 @@ defmodule Base32H do
   defp do_decode(<<>>, acc), do: acc
 
   defp do_decode(<<c::utf8, tail::binary>>, acc),
-    do: do_decode(tail, acc * 32 + Map.fetch!(@decode_map, <<c>>))
+    do: do_decode(tail, acc * 32 + Map.fetch!(@decode_map, c))
 
   def decode_bin(str) do
     last_size = (div(String.length(str) - 1, 8) + 1) * 5
