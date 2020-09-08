@@ -74,7 +74,7 @@ defmodule Base32H do
       "WELLH0WDYPARDNER"
   """
   @spec encode_bin(binary()) :: String.t()
-  def encode_bin(<<bin::binary>> = bin) do
+  def encode_bin(bin) when is_binary(bin) do
     padded = add_padding(bin, 5, 0)
 
     for <<chunk::binary-size(5) <- padded>> do
@@ -93,7 +93,7 @@ defmodule Base32H do
       8_675_309
   """
   @spec decode(String.t()) :: non_neg_integer()
-  def decode(<<str::binary>> = str) do
+  def decode(str) when is_binary(str) do
     str
     |> String.to_charlist()
     |> Enum.reduce(0, fn c, acc -> acc * 32 + Map.fetch!(@decode_map, c) end)
@@ -106,7 +106,7 @@ defmodule Base32H do
       <<0, 0, 0, 8, 6, 7, 5, 3, 0, 9>>
   """
   @spec decode_bin(String.t()) :: binary()
-  def decode_bin(<<str::binary>> = str) do
+  def decode_bin(str) when is_binary(str) do
     binary_size = (div(String.length(str) - 1, 8) + 1) * 5
     <<decode(str)::size(binary_size)-unit(8)>>
   end

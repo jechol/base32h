@@ -5,5 +5,5 @@ let
   inherit (pkgs.lib) optional optionals;
 in pkgs.mkShell {
   buildInputs =
-    [ jechol-nur.beam.all.packages.erlang_22_0.elixirs.elixir_1_10_0 ];
+    [ jechol-nur.beam.all.packages.erlang_23_0.elixirs.elixir_1_10_4 ];
 }

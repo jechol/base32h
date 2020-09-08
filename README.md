@@ -9,7 +9,7 @@ The package can be installed by adding `base32h` to your list of dependencies in
 ```elixir
 def deps do
   [
-    {:base32h, "~> 0.3.0"}
+    {:base32h, "~> 0.3.1"}
   ]
 end
 ```
