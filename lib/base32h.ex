@@ -63,7 +63,6 @@ defmodule Base32H do
 
     expanded
     |> List.flatten()
-    |> remove_starting_zeros()
     |> do_encode()
   end
 
@@ -80,7 +79,7 @@ defmodule Base32H do
   end
 
   defp pad(<<bin::binary>>) do
-    pad_size = rem(byte_size(bin), 5)
+    pad_size = Integer.mod(5 - byte_size(bin), 5)
     <<0::pad_size*8, bin::binary>>
   end
 
