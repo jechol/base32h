@@ -37,15 +37,14 @@ defmodule Base32H do
               |> Enum.with_index()
               |> Enum.map(fn {[c | _], n} -> {n, c} end)
               |> Enum.into(%{})
+
   @decode_map @digits
               |> Enum.with_index()
               |> Enum.map(fn {chars, n} -> chars |> Enum.map(fn c -> {c, n} end) end)
               |> List.flatten()
               |> Enum.into(%{})
 
-  defguardp is_encodable(num) when is_integer(num) and num >= 0
-
-  def encode(num) when is_encodable(num) do
+  def encode(num) when is_integer(num) and num >= 0 do
     num
     |> Stream.unfold(fn n ->
       if n == 0, do: nil, else: {rem(n, 32), div(n, 32)}
@@ -62,43 +61,30 @@ defmodule Base32H do
   end
 
   def encode_bin(<<bin::binary>>) do
-    padded = pad(bin)
-    expanded = for <<n::40 <- padded>>, do: expand_int(n)
+    padded = add_padding(bin, 5, 0)
 
-    expanded
+    for <<chunk::binary-size(5) <- padded>> do
+      for <<digit::5 <- chunk>>, do: digit
+    end
     |> List.flatten()
-    |> do_encode()
-  end
-
-  defp do_encode(nums) when is_list(nums) do
-    nums |> Enum.map(&Map.fetch!(@encode_map, &1)) |> Enum.into('') |> to_string()
-  end
-
-  defp expand_int(n) when is_encodable(n) do
-    expand_bin(<<n::40>>)
-  end
-
-  defp expand_bin(<<bin::binary-size(5)>>) do
-    for <<key::5 <- bin>>, do: key
-  end
-
-  defp pad(<<bin::binary>>) do
-    pad_size = Integer.mod(5 - byte_size(bin), 5)
-    <<0::pad_size*8, bin::binary>>
+    |> Enum.map(&Map.fetch!(@encode_map, &1))
+    |> Enum.into('')
+    |> to_string()
   end
 
   def decode(<<str::binary>>) do
-    do_decode(str, 0)
+    str
+    |> String.to_charlist()
+    |> Enum.reduce(0, fn c, acc -> acc * 32 + Map.fetch!(@decode_map, c) end)
   end
 
-  defp do_decode(<<>>, acc), do: acc
+  def decode_bin(<<str::binary>>) do
+    binary_size = (div(String.length(str) - 1, 8) + 1) * 5
+    <<decode(str)::size(binary_size)-unit(8)>>
+  end
 
-  defp do_decode(<<c::utf8, tail::binary>>, acc),
-    do: do_decode(tail, acc * 32 + Map.fetch!(@decode_map, c))
-
-  def decode_bin(str) do
-    last_size = (div(String.length(str) - 1, 8) + 1) * 5
-    n = decode(str)
-    <<n::last_size*8>>
+  defp add_padding(<<bin::binary>>, unit_size, padding) do
+    pad_size = Integer.mod(unit_size - byte_size(bin), unit_size)
+    <<padding::size(pad_size)-unit(8), bin::binary>>
   end
 end
