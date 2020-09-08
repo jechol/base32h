@@ -5,7 +5,7 @@ defmodule Base32H.MixProject do
     [
       app: :base32h,
       version: "0.2.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
