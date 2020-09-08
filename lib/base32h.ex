@@ -43,13 +43,10 @@ defmodule Base32H do
   @min_encode 0
   # max integer representible by 5 bytes.
   @max_encode 1_099_511_627_775
-  @min_decode "0"
-  @max_decode "ZZZZ-ZZZZ"
 
   def encode(n, allow_starting_zeros \\ false)
       when is_integer(n) and n >= @min_encode and n <= @max_encode do
     bin = <<n::40>>
-    raw_encoded = for <<five_bits::size(5) <- bin>>, do: @encode_map |> Map.fetch!(five_bits)
 
     chunks = for <<five_bits::size(5) <- bin>>, do: five_bits
 
@@ -110,6 +107,6 @@ defmodule Base32H do
   def decode_bin(str) do
     last_size = (div(String.length(str) - 1, 8) + 1) * 5
     n = decode(str)
-    <<n::last_size * 8>>
+    <<n::last_size*8>>
   end
 end
