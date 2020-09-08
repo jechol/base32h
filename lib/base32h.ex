@@ -43,12 +43,9 @@ defmodule Base32H do
               |> List.flatten()
               |> Enum.into(%{})
 
-  @min_encode 0
-  # max integer representible by 5 bytes.
-  @max_encode 1_099_511_627_775
+  defguardp is_encodable(n) when is_integer(n) and n >= 0 and n <= 1_099_511_627_775
 
-  def encode(n)
-      when is_integer(n) and n >= @min_encode and n <= @max_encode do
+  def encode(n) when is_encodable(n) do
     bin = <<n::40>>
 
     chunks = for <<five_bits::size(5) <- bin>>, do: five_bits
@@ -74,7 +71,7 @@ defmodule Base32H do
     nums |> Enum.map(&Map.fetch!(@encode_map, &1)) |> Enum.into('') |> to_string()
   end
 
-  defp expand_int(n) when is_integer(n) and n >= @min_encode and n <= @max_encode do
+  defp expand_int(n) when is_encodable(n) do
     expand_bin(<<n::40>>)
   end
 
