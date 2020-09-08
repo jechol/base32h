@@ -12,13 +12,12 @@ on:
 jobs:
   # Refactoring duplicated yaml is currently not possible
   # because Github does not support anchor syntax (& and *) now.
-  elixir_1_10_4:
-    runs-on: ${{ matrix.os }}
+  elixir_1_10_3:
+    runs-on: ubuntu-latest
     name: Test on Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        elixir: [1.10.4]
+        elixir: [1.10.3]
         otp: [21.0, 22.0, 23.0]
     steps:
       - uses: actions/checkout@v2
@@ -30,11 +29,10 @@ jobs:
       - run: mix test
 
   elixir_1_10:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     name: Test on Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
         elixir: [1.10.0]
         otp: [21.0, 22.0]
     steps:
@@ -47,11 +45,10 @@ jobs:
       - run: mix test
 
   elixir_1_8_and_1_9:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     name: Test on Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
         elixir: [1.8.0, 1.9.0]
         otp: [20.0, 21.0, 22.0]
     steps:
