@@ -47,18 +47,13 @@ defmodule Base32H do
   # max integer representible by 5 bytes.
   @max_encode 1_099_511_627_775
 
-  def encode(n, allow_starting_zeros \\ false)
+  def encode(n)
       when is_integer(n) and n >= @min_encode and n <= @max_encode do
     bin = <<n::40>>
 
     chunks = for <<five_bits::size(5) <- bin>>, do: five_bits
 
-    zeros_processed =
-      if allow_starting_zeros do
-        chunks
-      else
-        chunks |> remove_starting_zeros()
-      end
+    zeros_processed = chunks |> remove_starting_zeros()
 
     encoded = zeros_processed |> Enum.map(&Map.fetch!(@encode_map, &1))
 
