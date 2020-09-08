@@ -50,6 +50,7 @@ defmodule Base32H do
       iex> Base32H.encode(17_854_910)
       "H0WDY"
   """
+  @spec encode(non_neg_integer()) :: String.t()
   def encode(num) when is_integer(num) and num >= 0 do
     num
     |> Stream.unfold(fn n ->
@@ -72,7 +73,8 @@ defmodule Base32H do
       iex> Base32H.encode_bin(<<227, 169, 72, 131, 141, 245, 213, 150, 217, 217>>)
       "WELLH0WDYPARDNER"
   """
-  def encode_bin(<<bin::binary>>) do
+  @spec encode_bin(binary()) :: String.t()
+  def encode_bin(<<bin::binary>> = bin) do
     padded = add_padding(bin, 5, 0)
 
     for <<chunk::binary-size(5) <- padded>> do
@@ -90,7 +92,8 @@ defmodule Base32H do
       iex> Base32H.decode("88pzd")
       8_675_309
   """
-  def decode(<<str::binary>>) do
+  @spec decode(String.t()) :: non_neg_integer()
+  def decode(<<str::binary>> = str) do
     str
     |> String.to_charlist()
     |> Enum.reduce(0, fn c, acc -> acc * 32 + Map.fetch!(@decode_map, c) end)
@@ -102,7 +105,8 @@ defmodule Base32H do
       iex> Base32H.decode_bin("2060W2G6009")
       <<0, 0, 0, 8, 6, 7, 5, 3, 0, 9>>
   """
-  def decode_bin(<<str::binary>>) do
+  @spec decode_bin(String.t()) :: binary()
+  def decode_bin(<<str::binary>> = str) do
     binary_size = (div(String.length(str) - 1, 8) + 1) * 5
     <<decode(str)::size(binary_size)-unit(8)>>
   end
