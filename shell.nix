@@ -1,12 +1,22 @@
 let
-  nixpkgs = import (fetchTarball {
-    url = "https://github.com/NixOS/nixpkgs/archive/20.03.tar.gz";
-    sha256 = "0182ys095dfx02vl2a20j1hz92dx3mfgz2a6fhn31bqlp1wa8hlq";
-  }) { };
-  jechol = import (fetchTarball {
-    url = "https://github.com/jechol/nur-packages/archive/v1.0.tar.gz";
-    sha256 = "0v5fph0rb8bjibbfzapi8pq46hk5aysrmh6x32nxw4p807ix10l0";
-  }) { };
-in nixpkgs.mkShell {
-  buildInputs = [ jechol.beam.all.packages.erlang_23_0.elixirs.elixir_1_10_4 ];
+  nixpkgs = import
+    (fetchTarball {
+      url = "https://github.com/jechol/nixpkgs/archive/22.05-otp25-no-jit-elixir-1.14.tar.gz";
+      sha256 = "sha256:0lpbrmmqfnn875mhmxbhl962jxjkar1dcq37mrmh8vb907f0l9pd";
+    })
+    { };
+  platform =
+    if nixpkgs.stdenv.isDarwin then [
+      nixpkgs.darwin.apple_sdk.frameworks.CoreServices
+      nixpkgs.darwin.apple_sdk.frameworks.Foundation
+    ] else if nixpkgs.stdenv.isLinux then
+      [ nixpkgs.inotify-tools ]
+    else
+      [ ];
+in
+nixpkgs.mkShell {
+  buildInputs = with nixpkgs;
+    [
+      elixir_1_13
+    ] ++ platform;
 }
